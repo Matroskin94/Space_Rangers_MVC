@@ -16,12 +16,9 @@ var view = {
 		});
 		$("#m-btn-text").parent().fadeIn(150);
 	},
-	replace_ship_av: function(avatar,e){
-		document.body.appendChild(avatar);
-		avatar.style.zIndex = 9999; // сделать, чтобы элемент был над другими
-		avatar.style.position = 'absolute';
-		avatar.style.left = e.pageX + 'px';
-		avatar.style.top = e.pageY + 'px';
+	draw_grab_ship: function(dragObject){
+		dragObject.object.css({"top":""+dragObject.Y+"px", "left":""+dragObject.X+"px"});
+
 	}
 };
 /*------------------- End view --------------------*/
@@ -30,7 +27,55 @@ var view = {
 
 /*------------------- Start model --------------------*/
 var model = {
-	dragObject:{},
+	dragObject:{
+		X : 0,
+		Y : 0,
+		object: null,
+		horizontal: true,
+		ship_type: 0,
+		set_type:function(type){
+			switch(type){
+				case "ships-one":{
+					this.ship_type = 1;
+					break;
+				};
+				case "ships-two":{
+					this.ship_type = 2;
+					break;
+				};
+				case "ships-three":{
+					this.ship_type = 3;
+					break;
+				};
+				case "ships-four":{
+					this.ship_type = 4;
+					break;
+				};
+				case "ships-five":{
+					this.ship_type = 5;
+					break;
+				};
+			}
+		},
+		set_coords:function(x,y){
+			this.Y = y - 20;
+			this.X = x - (40 * this.ship_type) / 2;
+		}
+	},
+	init_drag: function(obj,x,y){
+		this.dragObject.object = obj;
+		this.dragObject.set_type(this.dragObject.object.prop("id"));
+		this.dragObject.set_coords(x,y);
+		this.dragObject.object.css("position", "absolute");
+
+	},
+    getCursor: function(){
+    	var cursor = {
+    		x: document.getElementById("cursorX").value,
+    		y: document.getElementById("cursorY").value 
+    	};
+    	return cursor;
+    },
 	game_status: function(e){
 		var butt_id = e.id,
 		tmp_but = document.getElementById(butt_id);
@@ -41,21 +86,12 @@ var model = {
 		}
 		return butt_id;
 	},
-	grab_ship: function(e){
-		this.dragObject.element = e;
-		this.dragObject.downX = e.pageX;
-		this.dragObject.downY = e.pageY;
-		$(e.target).addClass("grabbed");
-		if(!this.dragObject.avatar){
-			this.dragObject.avatar = event.target;
-		}
-		return this.dragObject.avatar;
-		//console.log(e);
-		//console.log(this.dragObject.element === undefined);
-
+	mouse_bind: function(){
+		$("body").bind("mousemove",this.set_coords);
 	},
-	getAvatar: function(){
-		return this.dragObject.avatar;
+	mouse_unbind :function(){
+		$("body").unbind("mousemove",this.set_coords);
+		
 	}
 
 };
@@ -64,7 +100,6 @@ var model = {
 
 /*------------------- Start controller --------------------*/
 var controller = {
-	ship_grabbed: false,
 	main_btn_clk: function(){
 		var butt = $(".game-button")[0],
 		status = model.game_status(butt);
@@ -74,25 +109,25 @@ var controller = {
 			view.show_hangar();
 		}
 	},
-	choose_ship: function(e){
-		if(model.dragObject.element === undefined){
-			model.grab_ship(e);
-			var avatar = model.grab_ship(e.target);
-			view.replace_ship_av(avatar,e.target);
-
+	grab_ship: function(e){
+		var ship_clone = $("#"+e.target.id+"").clone();
+		model.init_drag(ship_clone,e.pageX,e.pageY);
+		view.draw_grab_ship(model.dragObject);
+		$("body").append(model.dragObject.object);
+		//console.log("ship_grabbed");  
+		$("#player-field").on("click",".batle-cell",controller.set_ship);
+	},
+	move_ship: function(e){
+		if(model.dragObject.object != null){
+			model.dragObject.set_coords(e.pageX,e.pageY);
+			view.draw_grab_ship(model.dragObject);
 		}
 	},
-	drag_ship: function(e){
-		console.log($('.ships-line').find(".grabbed").length);
-		if($('.ships-line').find(".grabbed").length != 0){
-			this.ship_grabbed = true;
-			console.log("1");
-		}
-		if(this.ship_grabbed){
-			console.log("grab");
-			var avatar = model.getAvatar();
-			view.replace_ship_av(avatar,e.target);
-		}
+	set_ship: function(e){
+		//$('body').unbind('mousemove', model.mouse_unbind);
+		model.mouse_unbind(); 
+		console.log("ship_placed");
+		$("#player-field").unbind("click",this.set_ship);
 	}
 };
 /*------------------- End controller --------------------*/
@@ -120,8 +155,11 @@ $(document).ready(function () {
 		event: function(){
 			var main_but = document.getElementById("start-btn");
 			main_but.onclick = controller.main_btn_clk;
-			$('body').on('click', '.draggable', controller.choose_ship);
-			document.onmousemove =  controller.drag_ship;
+			$("#ships-for-batle").on("click",".draggable",controller.grab_ship);
+			$("body").on("mousemove",controller.move_ship);
+			//$("#ships-five").draggable();
+			//$('#ships-for-batle').on('mousedown', '.draggable', controller.drag_ship);
+			
 
 			
 			
