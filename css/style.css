@@ -1,0 +1,195 @@
+body{
+	background: url("../images/space_bg.png");
+}
+p {
+	color:white;
+	font-family: 'nexa-bold';
+}
+
+#game-name{
+	font-size:20px;
+}
+
+table {
+	border-collapse: collapse;
+	margin:0 auto;
+}
+td{
+	border: 1px solid #45D2E4;
+	width: 40px;
+	height: 40px;
+	color: white;
+	font-family: 'nexa-bold';
+	text-align: center;
+}
+
+.batle-cell:hover{
+	background-color: white;
+	opacity: 0.4;
+}
+
+.batle-field{
+	margin:0 auto;
+	width:1200px;
+	height:475px;
+	/*background-color: red;*/
+}
+
+.fields{
+	width:600px;
+	height: 475px;
+}
+
+#player-field{
+	float:left;
+	/*background-color: blue;*/
+}
+
+#enemey-field{
+	float: right;
+	/*background-color: green;*/
+}
+
+#enemey-field table{
+	display: none;
+}
+
+#ships-for-batle{
+	float: right;
+	height: 475px;
+	width: 540px;
+}
+
+.ships-line{
+	height: 40px;
+	width: 100%;
+	padding-top:10px;
+	padding-bottom: 10px;
+}
+/*.ships-line p{
+	display: inline-block;
+}*/
+.count-ships {
+    width: 20px;
+    height: 40px;
+    float: left;
+}
+
+.count-ships p{
+    line-height: 35px;
+    margin: 0px;
+    font-size: 22px;
+    text-align: center;
+}
+
+#five-count, #four-count, #three-count, #two-count, #one-count{
+	font-size: 30px;
+}
+
+.start-ships{
+	height: 40px;
+	display: inline-block;
+	float: left;
+	background:url("../images/ships/ship_4(40x40).png");
+	cursor: pointer;
+}
+
+#ships-five{
+	width: 200px;
+}
+#ships-four{
+	width: 160px;
+}
+#ships-three{
+	width: 120px;
+}
+#ships-two{
+	width: 80px;
+}
+#ships-one{
+	width: 40px;
+}
+
+.mess-wrapper{
+	margin:0 auto;
+	width: 1200px;
+}
+
+.message-field{
+	margin:0 auto;
+	width: 1075px;
+	height: 75px;
+}
+
+.mess{
+	float: left;
+	width: 50%;
+}
+
+.mess p {
+	margin-top:5px;
+	margin-bottom: 5px;
+}
+
+#enemey-mess{
+	padding-left: 60px;
+}
+
+.ship {
+	width: 40px;
+	height: 40px;
+	float: left;
+}
+
+.score_t{
+	width: 20px;
+	height: 40px;
+	float: left;
+}
+
+.score_t p{
+	line-height: 40px;
+	margin:0px;
+	text-align: center;
+}
+
+.enemey-ship{
+	background: url("../images/ships/ship_3(40x40).png");
+}
+
+.player-ship{
+	background: url("../images/ships/ship_4(40x40).png");
+}
+
+.d_ships p{
+	margin:auto;
+	display: block;
+}
+
+#pl_score, #en_score {
+	font-size:30px;
+
+}
+
+.button-field{
+	margin:0 auto;
+	width: 1075px;
+	height: 50px;
+	display: flex;
+}
+
+.game-button{
+	height: 37px;
+	border: 1px solid white;
+	display: inline-block;
+	margin:0 auto;
+	cursor: pointer;
+}
+.game-button:hover{
+	background-color: rgba(45,210,228,0.6);/*#45D2E4*/
+}
+
+.game-button p{
+	margin:8px;
+}
+

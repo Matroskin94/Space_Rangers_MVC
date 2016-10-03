@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Space Rangers</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="css/fonts.css">
+
+    <script src="lib/jquery/jquery-1.12.0.min.js"></script>
+    <script src="lib/jquery/jquery-ui.min.js"></script>
+    <!--<script src="lib/jquery/jquery.json.js"></script>-->
+</head>
+<body>
+	<div class="mess-wrapper">
+		<p id="game-name" align="center" style="margin-top: 0px; margin-bottom: 10px;">Space Rangers</p>
+	</div>
+
+	<div class="batle-field">
+		<div id="player-field" class="fields">
+			<table>
+				<tr>
+					<td> </td>
+					<td>A</td>
+					<td>B</td>
+					<td>C</td>
+					<td>D</td>
+					<td>E</td>
+					<td>F</td>
+					<td>G</td>
+					<td>H</td>
+					<td>I</td>
+					<td>J</td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td class="batle-cell" id="p1"></td>
+					<td class="batle-cell" id="p2"></td>
+					<td class="batle-cell" id="p3"></td>
+					<td class="batle-cell" id="p4"></td>
+					<td class="batle-cell" id="p5"></td>
+					<td class="batle-cell" id="p6"></td>
+					<td class="batle-cell" id="p7"></td>
+					<td class="batle-cell" id="p8"></td>
+					<td class="batle-cell" id="p9"></td>
+					<td class="batle-cell" id="p10"></td>
+				</tr>
+				<tr>
+					<td>2</td>
+					<td class="batle-cell" id="p11"></td>
+					<td class="batle-cell" id="p12"></td>
+					<td class="batle-cell" id="p13"></td>
+					<td class="batle-cell" id="p14"></td>
+					<td class="batle-cell" id="p15"></td>
+					<td class="batle-cell" id="p16"></td>
+					<td class="batle-cell" id="p17"></td>
+					<td class="batle-cell" id="p18"></td>
+					<td class="batle-cell" id="p19"></td>
+					<td class="batle-cell" id="p20"></td>
+				</tr>
+				<tr>
+					<td>3</td>
+					<td class="batle-cell" id="p21"></td>
+					<td class="batle-cell" id="p22"></td>
+					<td class="batle-cell" id="p23"></td>
+					<td class="batle-cell" id="p24"></td>
+					<td class="batle-cell" id="p25"></td>
+					<td class="batle-cell" id="p26"></td>
+					<td class="batle-cell" id="p27"></td>
+					<td class="batle-cell" id="p28"></td>
+					<td class="batle-cell" id="p29"></td>
+					<td class="batle-cell" id="p30"></tp>
+					</tr>
+					<tr>
+						<td>4</td>
+						<td class="batle-cell" id="p31"></td>
+						<td class="batle-cell" id="p32"></td>
+						<td class="batle-cell" id="p33"></td>
+						<td class="batle-cell" id="p34"></td>
+						<td class="batle-cell" id="p35"></td>
+						<td class="batle-cell" id="p36"></td>
+						<td class="batle-cell" id="p37"></td>
+						<td class="batle-cell" id="p38"></td>
+						<td class="batle-cell" id="p39"></td>
+						<td class="batle-cell" id="p40"></td>
+					</tr>
+					<tr>
+						<td>5</td>
+						<td class="batle-cell" id="p41"></td>
+						<td class="batle-cell" id="p42"></td>
+						<td class="batle-cell" id="p43"></td>
+						<td class="batle-cell" id="p44"></td>
+						<td class="batle-cell" id="p45"></td>
+						<td class="batle-cell" id="p46"></td>
+						<td class="batle-cell" id="p47"></td>
+						<td class="batle-cell" id="p48"></td>
+						<td class="batle-cell" id="p49"></td>
+						<td class="batle-cell" id="p50"></td>
+					</tr>
+					<tr>
+						<td>6</td>
+						<td class="batle-cell" id="p51"></td>
+						<td class="batle-cell" id="p52"></td>
+						<td class="batle-cell" id="p53"></td>
+						<td class="batle-cell" id="p54"></td>
+						<td class="batle-cell" id="p55"></td>
+						<td class="batle-cell" id="p56"></td>
+						<td class="batle-cell" id="p57"></td>
+						<td class="batle-cell" id="p58"></td>
+						<td class="batle-cell" id="p59"></td>
+						<td class="batle-cell" id="p60"></td>
+					</tr>
+					<tr>
+						<td>7</td>
+						<td class="batle-cell" id="p61"></td>
+						<td class="batle-cell" id="p62"></td>
+						<td class="batle-cell" id="p63"></td>
+						<td class="batle-cell" id="p64"></td>
+						<td class="batle-cell" id="p65"></td>
+						<td class="batle-cell" id="p66"></td>
+						<td class="batle-cell" id="p67"></td>
+						<td class="batle-cell" id="p68"></td>
+						<td class="batle-cell" id="p69"></td>
+						<td class="batle-cell" id="p70"></td>
+					</tr>
+					<tr>
+						<td>8</td>
+						<td class="batle-cell" id="p71"></td>
+						<td class="batle-cell" id="p72"></td>
+						<td class="batle-cell" id="p73"></td>
+						<td class="batle-cell" id="p74"></td>
+						<td class="batle-cell" id="p75"></td>
+						<td class="batle-cell" id="p76"></td>
+						<td class="batle-cell" id="p77"></td>
+						<td class="batle-cell" id="p78"></td>
+						<td class="batle-cell" id="p79"></td>
+						<td class="batle-cell" id="p80"></td>
+					</tr>
+					<tr>
+						<td>9</td>
+						<td class="batle-cell" id="p81"></td>
+						<td class="batle-cell" id="p82"></td>
+						<td class="batle-cell" id="p83"></td>
+						<td class="batle-cell" id="p84"></td>
+						<td class="batle-cell" id="p85"></td>
+						<td class="batle-cell" id="p86"></td>
+						<td class="batle-cell" id="p87"></td>
+						<td class="batle-cell" id="p88"></td>
+						<td class="batle-cell" id="p89"></td>
+						<td class="batle-cell" id="p90"></td>
+					</tr>
+					<tr>
+						<td>10</td>
+						<td class="batle-cell" id="p91"></td>
+						<td class="batle-cell" id="p92"></td>
+						<td class="batle-cell" id="p93"></td>
+						<td class="batle-cell" id="p94"></td>
+						<td class="batle-cell" id="p95"></td>
+						<td class="batle-cell" id="p96"></td>
+						<td class="batle-cell" id="p97"></td>
+						<td class="batle-cell" id="p98"></td>
+						<td class="batle-cell" id="p99"></td>
+						<td class="batle-cell" id="p100"></td>
+					</tr>
+				</table>
+
+			</div>
+			<div id="enemey-field" class="fields">
+
+				<table>
+					<tr>
+						<td> </td>
+						<td>A</td>
+						<td>B</td>
+						<td>C</td>
+						<td>D</td>
+						<td>E</td>
+						<td>F</td>
+						<td>G</td>
+						<td>H</td>
+						<td>I</td>
+						<td>J</td>
+					</tr>
+					<tr>
+						<td>1</td>
+						<td class="batle-cell" id="e1"></td>
+						<td class="batle-cell" id="e2"></td>
+						<td class="batle-cell" id="e3"></td>
+						<td class="batle-cell" id="e4"></td>
+						<td class="batle-cell" id="e5"></td>
+						<td class="batle-cell" id="e6"></td>
+						<td class="batle-cell" id="e7"></td>
+						<td class="batle-cell" id="e8"></td>
+						<td class="batle-cell" id="e9"></td>
+						<td class="batle-cell" id="e10"></td>
+					</tr>
+					<tr>
+						<td>2</td>
+						<td class="batle-cell" id="e11"></td>
+						<td class="batle-cell" id="e12"></td>
+						<td class="batle-cell" id="e13"></td>
+						<td class="batle-cell" id="e14"></td>
+						<td class="batle-cell" id="e15"></td>
+						<td class="batle-cell" id="e16"></td>
+						<td class="batle-cell" id="e17"></td>
+						<td class="batle-cell" id="e18"></td>
+						<td class="batle-cell" id="e19"></td>
+						<td class="batle-cell" id="e20"></td>
+					</tr>
+					<tr>
+						<td>3</td>
+						<td class="batle-cell" id="e21"></td>
+						<td class="batle-cell" id="e22"></td>
+						<td class="batle-cell" id="e23"></td>
+						<td class="batle-cell" id="e24"></td>
+						<td class="batle-cell" id="e25"></td>
+						<td class="batle-cell" id="e26"></td>
+						<td class="batle-cell" id="e27"></td>
+						<td class="batle-cell" id="e28"></td>
+						<td class="batle-cell" id="e29"></td>
+						<td class="batle-cell" id="e30"></tp>
+						</tr>
+						<tr>
+							<td>4</td>
+							<td class="batle-cell" id="e31"></td>
+							<td class="batle-cell" id="e32"></td>
+							<td class="batle-cell" id="e33"></td>
+							<td class="batle-cell" id="e34"></td>
+							<td class="batle-cell" id="e35"></td>
+							<td class="batle-cell" id="e36"></td>
+							<td class="batle-cell" id="e37"></td>
+							<td class="batle-cell" id="e38"></td>
+							<td class="batle-cell" id="e39"></td>
+							<td class="batle-cell" id="e40"></td>
+						</tr>
+						<tr>
+							<td>5</td>
+							<td class="batle-cell" id="e41"></td>
+							<td class="batle-cell" id="e42"></td>
+							<td class="batle-cell" id="e43"></td>
+							<td class="batle-cell" id="e44"></td>
+							<td class="batle-cell" id="e45"></td>
+							<td class="batle-cell" id="e46"></td>
+							<td class="batle-cell" id="e47"></td>
+							<td class="batle-cell" id="e48"></td>
+							<td class="batle-cell" id="e49"></td>
+							<td class="batle-cell" id="e50"></td>
+						</tr>
+						<tr>
+							<td>6</td>
+							<td class="batle-cell" id="e51"></td>
+							<td class="batle-cell" id="e52"></td>
+							<td class="batle-cell" id="e53"></td>
+							<td class="batle-cell" id="e54"></td>
+							<td class="batle-cell" id="e55"></td>
+							<td class="batle-cell" id="e56"></td>
+							<td class="batle-cell" id="e57"></td>
+							<td class="batle-cell" id="e58"></td>
+							<td class="batle-cell" id="e59"></td>
+							<td class="batle-cell" id="e60"></td>
+						</tr>
+						<tr>
+							<td>7</td>
+							<td class="batle-cell" id="e61"></td>
+							<td class="batle-cell" id="e62"></td>
+							<td class="batle-cell" id="e63"></td>
+							<td class="batle-cell" id="e64"></td>
+							<td class="batle-cell" id="e65"></td>
+							<td class="batle-cell" id="e66"></td>
+							<td class="batle-cell" id="e67"></td>
+							<td class="batle-cell" id="e68"></td>
+							<td class="batle-cell" id="e69"></td>
+							<td class="batle-cell" id="e70"></td>
+						</tr>
+						<tr>
+							<td>8</td>
+							<td class="batle-cell" id="e71"></td>
+							<td class="batle-cell" id="e72"></td>
+							<td class="batle-cell" id="e73"></td>
+							<td class="batle-cell" id="e74"></td>
+							<td class="batle-cell" id="e75"></td>
+							<td class="batle-cell" id="e76"></td>
+							<td class="batle-cell" id="e77"></td>
+							<td class="batle-cell" id="e78"></td>
+							<td class="batle-cell" id="e79"></td>
+							<td class="batle-cell" id="e80"></td>
+						</tr>
+						<tr>
+							<td>9</td>
+							<td class="batle-cell" id="e81"></td>
+							<td class="batle-cell" id="e82"></td>
+							<td class="batle-cell" id="e83"></td>
+							<td class="batle-cell" id="e84"></td>
+							<td class="batle-cell" id="e85"></td>
+							<td class="batle-cell" id="e86"></td>
+							<td class="batle-cell" id="e87"></td>
+							<td class="batle-cell" id="e88"></td>
+							<td class="batle-cell" id="e89"></td>
+							<td class="batle-cell" id="e90"></td>
+						</tr>
+						<tr>
+							<td>10</td>
+							<td class="batle-cell" id="e91"></td>
+							<td class="batle-cell" id="e92"></td>
+							<td class="batle-cell" id="e93"></td>
+							<td class="batle-cell" id="e94"></td>
+							<td class="batle-cell" id="e95"></td>
+							<td class="batle-cell" id="e96"></td>
+							<td class="batle-cell" id="e97"></td>
+							<td class="batle-cell" id="e98"></td>
+							<td class="batle-cell" id="e99"></td>
+							<td class="batle-cell" id="e100"></td>
+						</tr>
+					</table>
+
+				<div id="ships-for-batle">	
+					<p>Your ships comander</p>
+					<div class="ships-line">
+						<div class="count-ships"><p id="five-count">1</p></div>
+						<div class="count-ships"><p>x</p></div>
+						<div class="start-ships draggable" id="ships-five"></div>
+					</div>
+					<div class="ships-line">				
+						<div class="count-ships"><p id="four-count">2</p></div>
+						<div class="count-ships"><p>x</p></div>
+						<div class="start-ships draggable" id="ships-four"></div>
+					</div>
+					<div class="ships-line">
+						<div class="count-ships"><p id="three-count">3</p></div>
+						<div class="count-ships"><p>x</p></div>
+						<div class="start-ships draggable" id="ships-three"></div>
+					</div>
+					<div class="ships-line">
+						<div class="count-ships"><p id="two-count">4</p></div>
+						<div class="count-ships"><p>x</p></div>
+						<div class="start-ships draggable" id="ships-two"></div>
+					</div>
+					<div class="ships-line">
+						<div class="count-ships"><p id="one-count">5</p></div>
+						<div class="count-ships"><p>x</p></div>
+						<div class="start-ships draggable" id="ships-one"></div>
+					</div>
+				</div>
+
+				</div>
+			</div>
+
+			<div class="mess-wrapper">
+				<div class="message-field">
+					<div class="mess">
+						<p>Ships destroyed</p>
+						<div class="ship enemey-ship"></div>
+						<div class="score_t">
+							<p>X</p>
+						</div>
+						<div class="score_t">
+						<p id="pl_score">0</p>
+						</div>
+					</div>
+					<div class="mess">
+						<div id="enemey-mess">
+							<p>Ships destroyed</p>	
+							<div class="ship player-ship"></div>
+							<div class="score_t">
+								<p>X</p>
+							</div>
+							<div class="score_t">
+								<p id="en_score">0</p>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div class="mess-wrapper">
+				<div class="button-field">
+					<div class="game-button" id="start-btn"><p id="m-btn-text">Start game</p></div>
+				</div>
+			</div>
+
+			<script src="js/app.js"></script>
+		</body>
+		</html>
