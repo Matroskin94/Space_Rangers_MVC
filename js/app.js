@@ -18,7 +18,98 @@ var view = {
 	},
 	draw_grab_ship: function(dragObject){
 		dragObject.object.css({"top":""+dragObject.Y+"px", "left":""+dragObject.X+"px"});
-
+	},
+	draw_navy: function(cell_numb,type,horizontal){
+		console.log("cell:" + cell_numb);
+		console.log("type:" + type);
+		console.log("horizontal:" + horizontal);
+		if(horizontal){
+			switch(type){
+				case 1:{
+					$("#p"+cell_numb+"").addClass("player-ship");
+					break;
+				}
+				case 2:{
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb--;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					break;
+				}				
+				case 3:{
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb--;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb+= 2;	
+					$("#p"+cell_numb+"").addClass("player-ship");
+					break;
+				}
+				case 4:{
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb--;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb += 2;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb++;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					break;
+				}
+				case 5:{
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb--;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb--;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb += 3;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb++;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					break;
+				}				
+			}
+		}else if(!horizontal){
+			switch(type){
+				case 1:{
+					$("#p"+cell_numb+"").addClass("player-ship");
+					break;
+				}
+				case 2:{
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) + 10;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					break;
+				}
+				case 3:{
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) + 10;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) - 20;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					break;
+				}
+				case 4:{
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) + 10;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) + 10;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) - 30;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					break;
+				}
+				case 5:{
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) + 10;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) + 10;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) - 30;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) - 10;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					break;
+				}				
+			}
+		}
 	}
 };
 /*------------------- End view --------------------*/
@@ -27,6 +118,8 @@ var view = {
 
 /*------------------- Start model --------------------*/
 var model = {
+	ship_placed: false,
+	ship_grabbed:false,
 	dragObject:{
 		X : 0,
 		Y : 0,
@@ -58,13 +151,42 @@ var model = {
 			}
 		},
 		set_coords:function(x,y){
-			this.Y = y - 20;
-			this.X = x - (40 * this.ship_type) / 2;
+			if(this.horizontal){
+				this.Y = y - 20;
+				this.X = x - (40 * this.ship_type) / 2;
+			}else{
+				this.X = x - 20;
+				this.Y = y - (40 * this.ship_type) / 2;
+			}
+			
 		}
 	},
+	player_arr : [	0,0,0,0,0,0,0,0,0,0,					
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0
+					],
+	enemy_arr :  [	0,0,0,0,0,0,0,0,0,0,					
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0					
+					],
 	init_drag: function(obj,x,y){
 		this.dragObject.object = obj;
 		this.dragObject.set_type(this.dragObject.object.prop("id"));
+		this.dragObject.object.addClass("grabbed");
 		this.dragObject.set_coords(x,y);
 		this.dragObject.object.css("position", "absolute");
 
@@ -75,6 +197,10 @@ var model = {
     		y: document.getElementById("cursorY").value 
     	};
     	return cursor;
+    },
+    setCursor: function(x,y){
+    	document.getElementById("cursorX").value = x;
+    	document.getElementById("cursorY").value = y;
     },
 	game_status: function(e){
 		var butt_id = e.id,
@@ -91,7 +217,6 @@ var model = {
 	},
 	mouse_unbind :function(){
 		$("body").unbind("mousemove",this.set_coords);
-		
 	}
 
 };
@@ -113,21 +238,47 @@ var controller = {
 		var ship_clone = $("#"+e.target.id+"").clone();
 		model.init_drag(ship_clone,e.pageX,e.pageY);
 		view.draw_grab_ship(model.dragObject);
-		$("body").append(model.dragObject.object);
-		//console.log("ship_grabbed");  
-		$("#player-field").on("click",".batle-cell",controller.set_ship);
+		$("body").append(model.dragObject.object); 
 	},
 	move_ship: function(e){
 		if(model.dragObject.object != null){
+			model.setCursor(e.pageX,e.pageY);
 			model.dragObject.set_coords(e.pageX,e.pageY);
 			view.draw_grab_ship(model.dragObject);
 		}
 	},
+	rotate_ship: function(e){
+		if(e.keyCode == 32){
+			if(model.dragObject.horizontal){
+				model.dragObject.horizontal = false;
+				model.dragObject.object.prop("id",model.dragObject.object.prop("id") + "-vert");
+			}else{
+				model.dragObject.horizontal = true;
+				model.dragObject.object.prop("id",model.dragObject.object.prop("id").slice(0,-5));
+			}
+			var cursor = model.getCursor();
+			model.dragObject.set_coords(cursor.x, cursor.y);
+			view.draw_grab_ship(model.dragObject);
+		}
+	},
 	set_ship: function(e){
-		//$('body').unbind('mousemove', model.mouse_unbind);
-		model.mouse_unbind(); 
-		console.log("ship_placed");
-		$("#player-field").unbind("click",this.set_ship);
+		if(model.dragObject.object != null && model.ship_grabbed){
+			model.dragObject.object.detach();
+			model.dragObject.object = null;
+			model.ship_grabbed = false;
+			model.ship_placed = true;
+			$(document.elementFromPoint(e.pageX, e.pageY)).click();
+		}else if(model.dragObject.object != null && !model.ship_grabbed){
+			model.ship_grabbed = true;
+		}else if(model.ship_placed) {
+			var reg = new RegExp("\\d{1,2}","i"),
+				cell_numb = reg.exec(e.target.id)[0];	
+			view.draw_navy(cell_numb,model.dragObject.ship_type,model.dragObject.horizontal);
+			model.ship_placed = false;
+			model.dragObject.horizontal = true;
+		}
+		
+		
 	}
 };
 /*------------------- End controller --------------------*/
@@ -157,6 +308,9 @@ $(document).ready(function () {
 			main_but.onclick = controller.main_btn_clk;
 			$("#ships-for-batle").on("click",".draggable",controller.grab_ship);
 			$("body").on("mousemove",controller.move_ship);
+			$("body").on("click",controller.set_ship);
+			$("#player-field").on("click",".batle-cell",controller.set_ship);
+			$("body").on("keyup",controller.rotate_ship);
 			//$("#ships-five").draggable();
 			//$('#ships-for-batle').on('mousedown', '.draggable', controller.drag_ship);
 			

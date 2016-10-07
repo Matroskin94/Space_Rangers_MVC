@@ -110,6 +110,31 @@ td{
 	width: 40px;
 }
 
+#ships-five-vert{
+	width: 40px;
+	height: 200px;
+}
+
+#ships-four-vert{
+	width: 40px;
+	height: 160px;
+}
+
+#ships-three-vert{
+	width: 40px;
+	height: 120px;
+}
+
+#ships-two-vert{
+	width: 40px;
+	height: 80px;
+}
+
+#ships-one-vert{
+	width: 40px;
+	height: 40px;
+}
+
 .mess-wrapper{
 	margin:0 auto;
 	width: 1200px;
