@@ -31,7 +31,7 @@ var view = {
 				}
 				case 2:{
 					$("#p"+cell_numb+"").addClass("player-ship");
-					cell_numb--;
+					cell_numb++;
 					$("#p"+cell_numb+"").addClass("player-ship");
 					break;
 				}				
@@ -215,8 +215,141 @@ var model = {
 	mouse_bind: function(){
 		$("body").bind("mousemove",this.set_coords);
 	},
-	mouse_unbind :function(){
+	mouse_unbind: function(){
 		$("body").unbind("mousemove",this.set_coords);
+	},
+	show_arr: function(arr){
+		console.log("  A|B|C|D|E|F|G|H|I|J|");
+		for(var i = 0;i<10;i++){
+			console.log(i+" "+arr[i*10+0]+"|"+arr[i*10+1]+"|"+arr[i*10+2]+"|"+arr[i*10+3]+"|"+arr[i*10+4]+"|"+arr[i*10+5]+"|"+arr[i*10+6]+"|"+arr[i*10+7]+"|"+arr[i*10+8]+"|"+arr[i*10+9]+"|");
+		}
+	},
+	check_cell: function(number,arr){
+		if(arr[number] == 0){
+			return true;
+		}else{
+			return false;
+		}
+	},
+	setNavy: function(cell_numb,tmp_arr){
+		var tmp_numb = 0,
+			top_edge = 3;
+		tmp_arr[cell_numb] = 1;
+
+		if(cell_numb % 10 == 0){
+			tmp_numb = cell_numb - 10;
+			top_edge = 2;
+		}else if((cell_numb + 1) % 10 == 0){
+			tmp_numb = cell_numb - 11;
+			top_edge = 2;
+		}else{
+			tmp_numb = cell_numb - 11;
+		}
+		for(var j = tmp_numb;j<tmp_numb+top_edge;j++){
+			if((tmp_arr[j] != 1) && (j >= 0) && (j<100)){
+				tmp_arr[j] = 2;
+			}
+		}
+		if(cell_numb % 10 == 0){
+			tmp_numb = cell_numb + 10;
+		}else {
+			tmp_numb = cell_numb + 9;
+		}
+		for(var j = tmp_numb;j<tmp_numb+top_edge;j++){
+			if((tmp_arr[j] != 1) && (j > 0) && (j<100)){
+				tmp_arr[j] = 2;
+			}
+		}
+		if((tmp_arr[cell_numb-1] != 1) && (cell_numb % 10 != 0)){
+			tmp_arr[cell_numb-1] = 2;
+		}
+		/*if((tmp_arr[cell_numb+1] != 1) && ((cell_numb+1) % 10 != 0)){
+			tmp_arr[cell_numb+1] = 2;
+		}*/
+		return tmp_arr;
+	},
+	ship_to_array: function(target,type,horizontal,ships_arr){
+		/*console.log("ship type:" + type +"");
+		console.log("horizontal:" + horizontal + "");
+		console.log(target);*/
+		var reg = new RegExp("\\d{1,2}","i"),
+			cell_numb = "";
+		if($(target).hasClass("batle-cell")){
+			cell_numb = Number(reg.exec(target.id)[0]);
+			/* Расшифровка значений массива
+				0 - пустая ячейка с возможностью установки корабля
+				1 - ячейка с установленным кораблём
+				2 - пустая ячейка без возможности установки корабля(стоит возле кораблей)
+				3 - ячейка с подбитым(убитым) кораблём
+			*/
+			var tmp_arr = ships_arr;
+			if(model.check_cell(cell_numb,tmp_arr)){
+				var local_arr = [],
+					local_arr = ships_arr,
+					tmp_cell = cell_numb;
+				if((type == 3) || (type == 4)){
+					tmp_cell--;
+				}else if(type == 5){
+					tmp_cell-=2;
+				}
+				for(var i = 0;i<type;i++){
+					if(model.check_cell(tmp_cell,tmp_arr)){
+						local_arr = model.setNavy(tmp_cell,tmp_arr);
+						tmp_cell++;
+						console.log("cicle");
+					}else{
+						return false;
+					}
+				}
+				if((local_arr[tmp_cell] != 1) && ((tmp_cell) % 10 != 0)){
+					local_arr[tmp_cell] = 2;
+				}
+				model.player_arr = local_arr;
+				model.show_arr(model.player_arr);
+				return true;
+
+				/*switch(type){
+					case 1:{
+						if(model.check_cell(cell_numb,tmp_arr)){
+							model.player_arr = model.setNavy(cell_numb,tmp_arr);
+							if((tmp_arr[cell_numb+1] != 1) && ((cell_numb+1) % 10 != 0)){
+								tmp_arr[cell_numb+1] = 2;
+							}
+							console.log(model.player_arr);
+							return true;							
+						}else {
+							return false;
+						}
+						break;
+					}
+					case 2:{
+						
+						
+						break;
+					}
+					case 3:{
+
+						break;
+					}
+					case 4:{
+
+						break;
+					}
+					case 5:{
+
+						break;
+					}
+
+				}*/
+
+			}else{
+				return false;
+			}
+		}else{
+			console.log("not battle cell");
+			return false;
+		}
+		
 	}
 
 };
@@ -272,10 +405,20 @@ var controller = {
 			model.ship_grabbed = true;
 		}else if(model.ship_placed) {
 			var reg = new RegExp("\\d{1,2}","i"),
-				cell_numb = reg.exec(e.target.id)[0];	
-			view.draw_navy(cell_numb,model.dragObject.ship_type,model.dragObject.horizontal);
-			model.ship_placed = false;
-			model.dragObject.horizontal = true;
+				cell_numb = "",
+				set_result = true,
+				table = $(e.target).closest("table");
+			if(table.length != 0){
+				set_result = model.ship_to_array(e.target,model.dragObject.ship_type,model.dragObject.horizontal,model.player_arr);
+				if(set_result){
+					cell_numb = reg.exec(e.target.id)[0];
+					view.draw_navy(cell_numb,model.dragObject.ship_type,model.dragObject.horizontal);	
+					model.ship_placed = false;
+					model.dragObject.horizontal = true;
+				}
+			}else{
+				console.log("not in table");
+			}
 		}
 		
 		
