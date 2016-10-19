@@ -183,6 +183,8 @@ var model = {
 					0,0,0,0,0,0,0,0,0,0,
 					0,0,0,0,0,0,0,0,0,0					
 					],
+	pl_ships_arr : Array(),
+	en_ships_arr : Array(),
 	init_drag: function(obj,x,y){
 		this.dragObject.object = obj;
 		this.dragObject.set_type(this.dragObject.object.prop("id"));
@@ -231,42 +233,104 @@ var model = {
 			return false;
 		}
 	},
-	setNavy: function(cell_numb,tmp_arr){
+	setNavy: function(cell_numb,tmp_arr,horizontal){
 		var tmp_numb = 0,
 			top_edge = 3;
 		tmp_arr[cell_numb] = 1;
 
-		if(cell_numb % 10 == 0){
-			tmp_numb = cell_numb - 10;
-			top_edge = 2;
-		}else if((cell_numb + 1) % 10 == 0){
-			tmp_numb = cell_numb - 11;
-			top_edge = 2;
+		if(horizontal){
+			if(cell_numb % 10 == 0){
+				tmp_numb = cell_numb - 10;
+				top_edge = 2;
+			}else if((cell_numb + 1) % 10 == 0){
+				tmp_numb = cell_numb - 11;
+				top_edge = 2;
+			}else{
+				tmp_numb = cell_numb - 11;
+			}
+			for(var j = tmp_numb;j<tmp_numb+top_edge;j++){
+				if((tmp_arr[j] != 1) && (j >= 0) && (j<100)){
+					tmp_arr[j] = 2;
+				}
+			}
+			if(cell_numb % 10 == 0){
+				tmp_numb = cell_numb + 10;
+			}else {
+				tmp_numb = cell_numb + 9;
+			}
+			for(var j = tmp_numb;j<tmp_numb+top_edge;j++){
+				if((tmp_arr[j] != 1) && (j > 0) && (j<100)){
+					tmp_arr[j] = 2;
+				}
+			}
+			if((tmp_arr[cell_numb-1] != 1) && (cell_numb % 10 != 0)){
+				tmp_arr[cell_numb-1] = 2;
+			}
 		}else{
-			tmp_numb = cell_numb - 11;
-		}
-		for(var j = tmp_numb;j<tmp_numb+top_edge;j++){
-			if((tmp_arr[j] != 1) && (j >= 0) && (j<100)){
-				tmp_arr[j] = 2;
+			if(cell_numb < 9){
+				tmp_numb = cell_numb - 1;
+				top_edge = 2;
+			}else if(cell_numb > 89) {
+				tmp_numb = cell_numb - 11;
+			}else {
+				tmp_numb = cell_numb - 11;
+			}
+			for(var i = tmp_numb;i<tmp_numb+top_edge*10;i+=10){
+				if((tmp_arr[i] != 1) && (cell_numb % 10 != 0)){
+					tmp_arr[i] = 2;
+				}
+			}
+			if(cell_numb > 9){
+				tmp_numb = cell_numb - 9; 
+			}else {
+				tmp_numb = cell_numb + 1;
+			}
+			for(var i = tmp_numb;i<tmp_numb+top_edge*10;i+=10){
+				if((cell_numb + 1) % 10 != 0){
+					tmp_arr[i] = 2;
+				}
+			}
+			if((cell_numb - 10 >0) && (tmp_arr[cell_numb-10] != 1)){
+				tmp_arr[cell_numb - 10] = 2;
 			}
 		}
-		if(cell_numb % 10 == 0){
-			tmp_numb = cell_numb + 10;
-		}else {
-			tmp_numb = cell_numb + 9;
-		}
-		for(var j = tmp_numb;j<tmp_numb+top_edge;j++){
-			if((tmp_arr[j] != 1) && (j > 0) && (j<100)){
-				tmp_arr[j] = 2;
-			}
-		}
-		if((tmp_arr[cell_numb-1] != 1) && (cell_numb % 10 != 0)){
-			tmp_arr[cell_numb-1] = 2;
-		}
-		/*if((tmp_arr[cell_numb+1] != 1) && ((cell_numb+1) % 10 != 0)){
-			tmp_arr[cell_numb+1] = 2;
-		}*/
+
 		return tmp_arr;
+	},
+	create_ship: function(type,horiz, cell){
+		var ship_obj = {
+				type : 0,
+				horiz: "",
+				cells: [],
+				health : -1 
+			},
+			j = 0,
+			tmp_cell = cell;
+		ship_obj.type = type;
+		ship_obj.horiz = horiz;
+		ship_obj.health = 2;
+		if(horiz){
+			if(((type == 3) || (type == 4))){
+				tmp_cell--;
+			}else if(type == 5){
+				tmp_cell-=2;
+			}
+			for(var i = tmp_cell; i<tmp_cell + type;i++){
+				ship_obj.cells[j] = i;
+				j++;
+			}
+		}else{
+			if(((type == 3) || (type == 4))){
+				tmp_cell-=10;
+			}else if(type == 5){
+				tmp_cell-=20;
+			}
+			for(var i = tmp_cell; i<tmp_cell + type*10;i+=10){
+				ship_obj.cells[j] = i;
+				j++;
+			}
+		}
+		return ship_obj;
 	},
 	ship_to_array: function(target,type,horizontal,ships_arr){
 		/*console.log("ship type:" + type +"");
@@ -286,61 +350,49 @@ var model = {
 			if(model.check_cell(cell_numb,tmp_arr)){
 				var local_arr = [],
 					local_arr = ships_arr,
-					tmp_cell = cell_numb;
-				if((type == 3) || (type == 4)){
-					tmp_cell--;
-				}else if(type == 5){
-					tmp_cell-=2;
-				}
-				for(var i = 0;i<type;i++){
-					if(model.check_cell(tmp_cell,tmp_arr)){
-						local_arr = model.setNavy(tmp_cell,tmp_arr);
-						tmp_cell++;
-						console.log("cicle");
-					}else{
-						return false;
+					tmp_cell = cell_numb,
+					ship_obj = "";
+				if(horizontal){
+					if((type == 3) || (type == 4)){
+						tmp_cell--;
+					}else if(type == 5){
+						tmp_cell-=2;
 					}
-				}
-				if((local_arr[tmp_cell] != 1) && ((tmp_cell) % 10 != 0)){
-					local_arr[tmp_cell] = 2;
+					for(var i = 0;i<type;i++){
+						if(model.check_cell(tmp_cell,tmp_arr)){
+							local_arr = model.setNavy(tmp_cell,tmp_arr,horizontal);
+							tmp_cell++;
+						}else{
+							return false;
+						}
+					}
+					if((local_arr[tmp_cell] != 1) && ((tmp_cell) % 10 != 0)){
+						local_arr[tmp_cell] = 2;
+					}
+				}else{
+					if((type == 3) || (type == 4)){
+						tmp_cell-= 10;
+					}else if(type == 5){
+						tmp_cell-=20;
+					}
+					for(var i = 0;i<type;i++){
+						if(model.check_cell(tmp_cell,tmp_arr)){
+							local_arr = model.setNavy(tmp_cell,tmp_arr,horizontal);
+							tmp_cell+=10;
+						}else{
+							return false;
+						}
+					}
+					if(tmp_cell < 100){
+						local_arr[tmp_cell] = 2;
+					}
 				}
 				model.player_arr = local_arr;
 				model.show_arr(model.player_arr);
+				ship_obj = model.create_ship(type, horizontal, cell_numb);
+				model.pl_ships_arr.push(ship_obj);
+				console.log(model.pl_ships_arr);
 				return true;
-
-				/*switch(type){
-					case 1:{
-						if(model.check_cell(cell_numb,tmp_arr)){
-							model.player_arr = model.setNavy(cell_numb,tmp_arr);
-							if((tmp_arr[cell_numb+1] != 1) && ((cell_numb+1) % 10 != 0)){
-								tmp_arr[cell_numb+1] = 2;
-							}
-							console.log(model.player_arr);
-							return true;							
-						}else {
-							return false;
-						}
-						break;
-					}
-					case 2:{
-						
-						
-						break;
-					}
-					case 3:{
-
-						break;
-					}
-					case 4:{
-
-						break;
-					}
-					case 5:{
-
-						break;
-					}
-
-				}*/
 
 			}else{
 				return false;
@@ -414,6 +466,8 @@ var controller = {
 					cell_numb = reg.exec(e.target.id)[0];
 					view.draw_navy(cell_numb,model.dragObject.ship_type,model.dragObject.horizontal);	
 					model.ship_placed = false;
+					model.dragObject.horizontal = true;
+				}else{
 					model.dragObject.horizontal = true;
 				}
 			}else{
