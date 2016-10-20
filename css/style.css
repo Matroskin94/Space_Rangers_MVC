@@ -82,7 +82,7 @@ td{
     text-align: center;
 }
 
-#five-count, #four-count, #three-count, #two-count, #one-count{
+#count-5, #count-4, #count-3, #count-2, #count-1{
 	font-size: 30px;
 }
 
@@ -94,43 +94,43 @@ td{
 	cursor: pointer;
 }
 
-#ships-five{
+#ships-5{
 	width: 200px;
 }
-#ships-four{
+#ships-4{
 	width: 160px;
 }
-#ships-three{
+#ships-3{
 	width: 120px;
 }
-#ships-two{
+#ships-2{
 	width: 80px;
 }
-#ships-one{
+#ships-1{
 	width: 40px;
 }
 
-#ships-five-vert{
+#ships-5-vert{
 	width: 40px;
 	height: 200px;
 }
 
-#ships-four-vert{
+#ships-4-vert{
 	width: 40px;
 	height: 160px;
 }
 
-#ships-three-vert{
+#ships-3-vert{
 	width: 40px;
 	height: 120px;
 }
 
-#ships-two-vert{
+#ships-2-vert{
 	width: 40px;
 	height: 80px;
 }
 
-#ships-one-vert{
+#ships-1-vert{
 	width: 40px;
 	height: 40px;
 }
