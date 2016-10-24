@@ -51,7 +51,7 @@ var view = {
 					break;
 				}
 				case 5:{
-					console.log("ship5555");
+					//console.log("ship5555");
 					$("#p"+cell_numb+"").addClass("player-ship");
 					cell_numb--;
 					$("#p"+cell_numb+"").addClass("player-ship");
@@ -78,31 +78,31 @@ var view = {
 				}
 				case 3:{
 					$("#p"+cell_numb+"").addClass("player-ship");
-					cell_numb = Number(cell_numb) + 10;
+					cell_numb = Number(cell_numb) - 10;
 					$("#p"+cell_numb+"").addClass("player-ship");
-					cell_numb = Number(cell_numb) - 20;
+					cell_numb = Number(cell_numb) + 20;
 					$("#p"+cell_numb+"").addClass("player-ship");
 					break;
 				}
 				case 4:{
 					$("#p"+cell_numb+"").addClass("player-ship");
-					cell_numb = Number(cell_numb) + 10;
+					cell_numb = Number(cell_numb) - 10;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) + 20;
 					$("#p"+cell_numb+"").addClass("player-ship");
 					cell_numb = Number(cell_numb) + 10;
-					$("#p"+cell_numb+"").addClass("player-ship");
-					cell_numb = Number(cell_numb) - 30;
 					$("#p"+cell_numb+"").addClass("player-ship");
 					break;
 				}
 				case 5:{
 					$("#p"+cell_numb+"").addClass("player-ship");
-					cell_numb = Number(cell_numb) + 10;
-					$("#p"+cell_numb+"").addClass("player-ship");
-					cell_numb = Number(cell_numb) + 10;
-					$("#p"+cell_numb+"").addClass("player-ship");
-					cell_numb = Number(cell_numb) - 30;
+					cell_numb = Number(cell_numb) - 10;
 					$("#p"+cell_numb+"").addClass("player-ship");
 					cell_numb = Number(cell_numb) - 10;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) + 30;
+					$("#p"+cell_numb+"").addClass("player-ship");
+					cell_numb = Number(cell_numb) + 10;
 					$("#p"+cell_numb+"").addClass("player-ship");
 					break;
 				}				
@@ -220,7 +220,49 @@ var model = {
 			return false;
 		}
 	},
-	setNavy: function(cell_numb,tmp_arr,horizontal,ship_f,near_f){
+	check_edge: function(cell,type,horizontal){
+		switch(type){
+			case 2:{
+				if(horizontal){
+					return !(cell % 10 == 9);
+				}
+				break;
+			}
+			case 3:{
+				if(horizontal){
+					return (cell%10 < 9) && (cell % 10 > 0);
+				}
+				break;
+			}
+			case 4:{
+				if(horizontal){
+					return (cell % 10 < 8) && (cell % 10 > 0);
+				}
+				break;
+			}			
+		}
+
+		return true;
+	},
+	set_first: function(cell,type,horizontal){
+		if(horizontal){
+			if((type == 3) || (type == 4)){
+				cell--;
+			}else if(type == 5){
+				cell-=2;
+			}
+			return cell;
+		}else{
+			if((type == 3) || (type == 4)){
+				cell-= 10;
+			}else if(type == 5){
+				cell-=20;
+			}
+			return cell;
+		}
+
+	},
+	setNavy: function(cell_numb,tmp_arr,horizontal,ship_f,near_f,last){
 		var tmp_numb = 0,
 			top_edge = 3;
 		tmp_arr[cell_numb] = ship_f;
@@ -320,9 +362,9 @@ var model = {
 		return ship_obj;
 	},
 	ship_to_array: function(target,type,horizontal,ships_arr){
-		console.log("ship type:" + type +"");
+		/*console.log("ship type:" + type +"");
 		console.log("horizontal:" + horizontal + "");
-		console.log(target);
+		console.log(target);*/
 		var reg = new RegExp("\\d{1,2}","i"),
 			cell_numb = "";
 		if($(target).hasClass("batle-cell") || !isNaN(target)){
@@ -338,17 +380,15 @@ var model = {
 				3 - ячейка с подбитым(убитым) кораблём
 			*/
 			var tmp_arr = ships_arr;
-			if(model.check_cell(cell_numb,tmp_arr)){
+			if(model.check_cell(cell_numb,tmp_arr) && model.check_edge(cell_numb, type,horizontal)){
 				var local_arr = [],
 					local_arr = ships_arr,
 					tmp_cell = cell_numb,
 					ship_obj = "";
+				if(type >= 3){
+					tmp_cell = model.set_first(cell_numb,type,horizontal);
+				}
 				if(horizontal){
-					if((type == 3) || (type == 4)){
-						tmp_cell--;
-					}else if(type == 5){
-						tmp_cell-=2;
-					}
 					for(var i = 0;i<type;i++){
 						if(model.check_cell(tmp_cell,tmp_arr)){
 							local_arr = model.setNavy(tmp_cell,tmp_arr,horizontal,1,2);
@@ -361,11 +401,6 @@ var model = {
 						local_arr[tmp_cell] = 2;
 					}
 				}else{
-					if((type == 3) || (type == 4)){
-						tmp_cell-= 10;
-					}else if(type == 5){
-						tmp_cell-=20;
-					}
 					for(var i = 0;i<type;i++){
 						if(model.check_cell(tmp_cell,tmp_arr)){
 							local_arr = model.setNavy(tmp_cell,tmp_arr,horizontal,1,2);
@@ -425,8 +460,8 @@ var model = {
 				if(model.ship_to_array(rand_cell,(i+1),rand_horiz,arr)){
 					j++;
 				}else{
-					//continue;
-					j++;
+					continue;
+					//j++;
 				}
 				/*console.log("horizontal:"+rand_horiz+"");
 				console.log("cell:"+rand_cell+"");*/
@@ -453,7 +488,6 @@ var controller = {
 	},
 	clear_btn_clk: function(){
 		var last_ship = 0;
-		model.show_arr(model.player_arr);
 		for(var i = 0;i<model.pl_ships_arr.length;i++){
 			for(var j = 0; j<model.pl_ships_arr[i].cells.length;j++){
 				model.setNavy(model.pl_ships_arr[i].cells[j],model.player_arr,model.pl_ships_arr[i].horiz,0,0);
@@ -474,6 +508,7 @@ var controller = {
 			model.pl_ships_arr.pop();
 		}
 		model.pl_ships_hangar = [4,3,2,1];
+		model.show_arr(model.player_arr);
 		//model.show_arr(model.player_arr);
 		//console.log(model.pl_ships_arr);
 	},
@@ -483,7 +518,15 @@ var controller = {
 		model.show_arr(model.player_arr);
 		//draw_navy: function(cell_numb,type,horizontal)
 		for(var i = 0;i<model.pl_ships_arr.length;i++){
-			view.draw_navy(model.pl_ships_arr[i].cells[0],model.pl_ships_arr[i].type,model.pl_ships_arr[i].horiz);
+			if((model.pl_ships_arr[i].type == 1 || model.pl_ships_arr[i].type == 2)){
+				view.draw_navy(model.pl_ships_arr[i].cells[0],model.pl_ships_arr[i].type,model.pl_ships_arr[i].horiz);
+			}
+			if((model.pl_ships_arr[i].type == 3 || model.pl_ships_arr[i].type == 4)){
+				view.draw_navy(model.pl_ships_arr[i].cells[1],model.pl_ships_arr[i].type,model.pl_ships_arr[i].horiz);
+			}
+			if(model.pl_ships_arr[i].type == 5){
+				view.draw_navy(model.pl_ships_arr[i].cells[2],model.pl_ships_arr[i].type,model.pl_ships_arr[i].horiz);
+			}
 /*
 var ship_obj = {
 				type : 0,
