@@ -209,9 +209,16 @@ var model = {
 	},
 	show_arr: function(arr){
 		console.log("  A|B|C|D|E|F|G|H|I|J|");
+		var count = 0;
 		for(var i = 0;i<10;i++){
 			console.log(i+" "+arr[i*10+0]+"|"+arr[i*10+1]+"|"+arr[i*10+2]+"|"+arr[i*10+3]+"|"+arr[i*10+4]+"|"+arr[i*10+5]+"|"+arr[i*10+6]+"|"+arr[i*10+7]+"|"+arr[i*10+8]+"|"+arr[i*10+9]+"|");
 		}
+		/*for(var i = 0; i< 100; i++){
+			if(arr[i] == 1){
+				count++;
+			}
+		}
+		console.log("count"+count);*/
 	},
 	check_cell: function(number,arr){
 		if(arr[number] == 0){
@@ -225,18 +232,24 @@ var model = {
 			case 2:{
 				if(horizontal){
 					return !(cell % 10 == 9);
+				}else{
+					return !(cell > 89) ;
 				}
 				break;
 			}
 			case 3:{
 				if(horizontal){
 					return (cell%10 < 9) && (cell % 10 > 0);
+				}else{
+					return !(cell > 89);
 				}
 				break;
 			}
 			case 4:{
 				if(horizontal){
 					return (cell % 10 < 8) && (cell % 10 > 0);
+				}else{
+					return !(cell > 89);
 				}
 				break;
 			}			
@@ -262,11 +275,12 @@ var model = {
 		}
 
 	},
-	setNavy: function(cell_numb,tmp_arr,horizontal,ship_f,near_f,last){
+	setNavy: function(cell_numb,tmp_arr,horizontal,ship_f,near_f){
 		var tmp_numb = 0,
 			top_edge = 3;
+		//console.log("setNavy:"+horizontal+"cell:"+cell_numb);
+		/*console.log("cell_numb:"+cell_numb + " hor:" + horizontal);*/
 		tmp_arr[cell_numb] = ship_f;
-
 		if(horizontal){
 			if(cell_numb % 10 == 0){
 				tmp_numb = cell_numb - 10;
@@ -324,6 +338,7 @@ var model = {
 			}
 		}
 
+		//model.show_arr(tmp_arr);
 		return tmp_arr;
 	},
 	create_ship: function(type,horiz, cell){
@@ -361,10 +376,7 @@ var model = {
 		}
 		return ship_obj;
 	},
-	ship_to_array: function(target,type,horizontal,ships_arr){
-		/*console.log("ship type:" + type +"");
-		console.log("horizontal:" + horizontal + "");
-		console.log(target);*/
+	ship_to_array: function(target,type,horizontal,player_arr){
 		var reg = new RegExp("\\d{1,2}","i"),
 			cell_numb = "";
 		if($(target).hasClass("batle-cell") || !isNaN(target)){
@@ -379,19 +391,29 @@ var model = {
 				2 - пустая ячейка без возможности установки корабля(стоит возле кораблей)
 				3 - ячейка с подбитым(убитым) кораблём
 			*/
-			var tmp_arr = ships_arr;
+			var tmp_arr = [];
+			if(player_arr){
+				tmp_arr = model.player_arr.slice(0,100);
+			}else{
+				tmp_arr = model.enemy_arr.slice(0,100);
+			}
+			//tmp_arr = ships_arr.slice(0,100);
+			/*console.log("ships_arr");
+			model.show_arr(ships_arr);
+			console.log("tmp_arr");
+			model.show_arr(tmp_arr);*/
 			if(model.check_cell(cell_numb,tmp_arr) && model.check_edge(cell_numb, type,horizontal)){
 				var local_arr = [],
-					local_arr = ships_arr,
 					tmp_cell = cell_numb,
 					ship_obj = "";
+				local_arr = tmp_arr.slice(0,100);
 				if(type >= 3){
 					tmp_cell = model.set_first(cell_numb,type,horizontal);
 				}
 				if(horizontal){
 					for(var i = 0;i<type;i++){
 						if(model.check_cell(tmp_cell,tmp_arr)){
-							local_arr = model.setNavy(tmp_cell,tmp_arr,horizontal,1,2);
+							local_arr = model.setNavy(tmp_cell,tmp_arr,horizontal,1,2).slice(0,100);
 							tmp_cell++;
 						}else{
 							return false;
@@ -403,9 +425,10 @@ var model = {
 				}else{
 					for(var i = 0;i<type;i++){
 						if(model.check_cell(tmp_cell,tmp_arr)){
-							local_arr = model.setNavy(tmp_cell,tmp_arr,horizontal,1,2);
+							local_arr = model.setNavy(tmp_cell,tmp_arr,horizontal,1,2).slice(0,100);
 							tmp_cell+=10;
 						}else{
+							
 							return false;
 						}
 					}
@@ -413,19 +436,24 @@ var model = {
 						local_arr[tmp_cell] = 2;
 					}
 				}
-				model.player_arr = local_arr;
+				model.player_arr = local_arr.slice(0,100);
 				//model.show_arr(model.player_arr);
 				ship_obj = model.create_ship(type, horizontal, cell_numb);
+				//console.log(ship_obj);
 				model.pl_ships_arr.push(ship_obj);
-				console.log(model.pl_ships_arr);
+				//console.log(model.pl_ships_arr);
+
+				/*console.log("ship type:" + type +"");
+				console.log("horizontal:" + horizontal + "");
+				console.log(target);*/
 				return true;
 
 			}else{
-				console.log("You can't place here");
+				//console.log("You can't place here");
 				return false;
 			}
 		}else{
-			console.log("not battle cell");
+			//console.log("not battle cell");
 			return false;
 		}
 		
@@ -439,7 +467,7 @@ var model = {
 			return true;
 		}
 	},
-	ships_random: function(arr,ships_hangar){
+	ships_random: function(player_arr,ships_hangar){
 		var rand_cell = -1,
 			rand_horiz = -1,
 			j = 0;
@@ -456,15 +484,11 @@ var model = {
 					rand_horiz = false;
 				}
 				rand_cell = Math.floor(Math.random() * (99 - 0 + 1) + 0);
-				//target,type,horizontal,ships_arr
-				if(model.ship_to_array(rand_cell,(i+1),rand_horiz,arr)){
+				if(model.ship_to_array(rand_cell,(i+1),rand_horiz,player_arr)){// Подаём всегда пустой массив!!!
 					j++;
 				}else{
 					continue;
-					//j++;
 				}
-				/*console.log("horizontal:"+rand_horiz+"");
-				console.log("cell:"+rand_cell+"");*/
 			}
 		}
 			//console.log(arr);
@@ -491,7 +515,7 @@ var controller = {
 		for(var i = 0;i<model.pl_ships_arr.length;i++){
 			for(var j = 0; j<model.pl_ships_arr[i].cells.length;j++){
 				model.setNavy(model.pl_ships_arr[i].cells[j],model.player_arr,model.pl_ships_arr[i].horiz,0,0);
-				view.clear_cell("p",model.pl_ships_arr[i].cells[j]);
+				//view.clear_cell("p",model.pl_ships_arr[i].cells[j]);
 				last_ship = model.pl_ships_arr[i].cells[j] + 1;
 			}
 			if(model.pl_ships_arr[i].horiz){
@@ -514,8 +538,8 @@ var controller = {
 	},
 	random_btn_clk: function(){
 		//console.log();
-		model.ships_random(model.player_arr,model.pl_ships_hangar);
-		model.show_arr(model.player_arr);
+		model.ships_random(true,model.pl_ships_hangar);
+		//model.show_arr(model.player_arr);
 		//draw_navy: function(cell_numb,type,horizontal)
 		for(var i = 0;i<model.pl_ships_arr.length;i++){
 			if((model.pl_ships_arr[i].type == 1 || model.pl_ships_arr[i].type == 2)){
@@ -527,17 +551,15 @@ var controller = {
 			if(model.pl_ships_arr[i].type == 5){
 				view.draw_navy(model.pl_ships_arr[i].cells[2],model.pl_ships_arr[i].type,model.pl_ships_arr[i].horiz);
 			}
-/*
-var ship_obj = {
-				type : 0,
-				horiz: "",
-				cells: [],
-				health : -1 
-			},
-*/
-
-			//model.pl_ships_arr[i].cells[j],model.player_arr,model.pl_ships_arr[i].horiz
 		}
+		model.show_arr(model.player_arr);
+		var c = 0;
+		for(var i = 0; i<100;i++){
+			if(model.player_arr[i] == 1){
+				c++;
+			}
+		}
+		console.log("ships" + c);
 	},
 	grab_ship: function(e){
 		var navy_type = e.target.id[e.target.id.length-1];
@@ -573,7 +595,6 @@ var ship_obj = {
 		}
 	},
 	set_ship: function(e){
-		//console.log(e.type);
 		if(model.dragObject.object != null && model.ship_grabbed){
 			model.setting_navy_type = model.dragObject.ship_type;
 			model.dragObject.object.detach();
