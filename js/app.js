@@ -116,6 +116,24 @@ var view = {
 	},
 	clear_cell : function(field,cell_numb){
 		$("#"+field+cell_numb+"").removeClass("player-ship");
+	},
+	draw_shot: function(field,cell_numb,picture){
+		$("#"+field+cell_numb+"").addClass(picture);
+	},
+	show_mess: function(mess_text){
+		$("#mess-window, #modal-back").css({"display": "block"});
+		$("#modal-back").animate({opacity:0.4},400);
+		$("#mess-window").animate({opacity:1},400);
+		$(".modal_window > #mess-text").html(mess_text);
+
+	},
+	hide_mess: function(){
+		$("#modal-back").animate({opacity:0},400, function(){
+			$("#modal-back").css({"display": "none"});
+		});
+		$("#mess-window").animate({opacity:0},400, function(){
+			$("#mess-window").css({"display": "none"});
+		});
 	}
 };
 /*------------------- End view --------------------*/
@@ -126,8 +144,11 @@ var view = {
 var model = {
 	ship_placed: false,
 	ship_grabbed:false,
+	game_started: false,
 	pl_ships_hangar: [4,3,2,1],
+	en_ships_hangar: [4,3,2,1],
 	setting_navy_type: -1,
+	player_shot: true,
 	dragObject:{
 		X : 0,
 		Y : 0,
@@ -191,16 +212,6 @@ var model = {
     	document.getElementById("cursorX").value = x;
     	document.getElementById("cursorY").value = y;
     },
-	game_status: function(e){
-		var butt_id = e.id,
-		tmp_but = document.getElementById(butt_id);
-		if(butt_id === "start-btn"){
-			tmp_but.id = "end-btn";
-		}else if(butt_id === "end-btn"){
-			tmp_but.id = "start-btn";
-		}
-		return butt_id;
-	},
 	mouse_bind: function(){
 		$("body").bind("mousemove",this.set_coords);
 	},
@@ -213,18 +224,32 @@ var model = {
 		for(var i = 0;i<10;i++){
 			console.log(i+" "+arr[i*10+0]+"|"+arr[i*10+1]+"|"+arr[i*10+2]+"|"+arr[i*10+3]+"|"+arr[i*10+4]+"|"+arr[i*10+5]+"|"+arr[i*10+6]+"|"+arr[i*10+7]+"|"+arr[i*10+8]+"|"+arr[i*10+9]+"|");
 		}
-		/*for(var i = 0; i< 100; i++){
-			if(arr[i] == 1){
-				count++;
-			}
-		}
-		console.log("count"+count);*/
 	},
 	check_cell: function(number,arr){
 		if(arr[number] == 0){
 			return true;
 		}else{
 			return false;
+		}
+	},
+	check_hungar: function(player_hungar){
+		var hangar = [],
+			navy_count = 0;
+		if(player_hungar){
+			hangar = model.pl_ships_hangar;
+		}else{
+			hangar = model.en_ships_hangar;
+		}
+		for(var i = 0; i < hangar.length;i++){
+			if(hangar[i] == 0){
+				navy_count++;
+			}
+		}
+		console.log(hangar);
+		if(navy_count == 4){
+			return false; 
+		}else{
+			return true;
 		}
 	},
 	check_edge: function(cell,type,horizontal){
@@ -257,6 +282,19 @@ var model = {
 
 		return true;
 	},
+	check_shot:function(player_shot,cell){
+		var arr = [];
+		if(player_shot){
+			if(model.player_arr[cell] == 1){
+				console.log("hit");
+				return true;
+			}else{
+				console.log("miss");
+				console.log(cell);
+				return false;
+			}
+		}
+	},
 	set_first: function(cell,type,horizontal){
 		if(horizontal){
 			if((type == 3) || (type == 4)){
@@ -278,8 +316,6 @@ var model = {
 	setNavy: function(cell_numb,tmp_arr,horizontal,ship_f,near_f){
 		var tmp_numb = 0,
 			top_edge = 3;
-		//console.log("setNavy:"+horizontal+"cell:"+cell_numb);
-		/*console.log("cell_numb:"+cell_numb + " hor:" + horizontal);*/
 		tmp_arr[cell_numb] = ship_f;
 		if(horizontal){
 			if(cell_numb % 10 == 0){
@@ -335,6 +371,9 @@ var model = {
 			}
 			if((cell_numb - 10 >0) && (tmp_arr[cell_numb-10] != 1)){
 				tmp_arr[cell_numb - 10] = near_f;
+			}
+			if((cell_numb + 10 < 100) && (tmp_arr[cell_numb+10] != 1) && (near_f == 0)){
+				tmp_arr[cell_numb + 10] = near_f;
 			}
 		}
 
@@ -397,11 +436,7 @@ var model = {
 			}else{
 				tmp_arr = model.enemy_arr.slice(0,100);
 			}
-			//tmp_arr = ships_arr.slice(0,100);
-			/*console.log("ships_arr");
-			model.show_arr(ships_arr);
-			console.log("tmp_arr");
-			model.show_arr(tmp_arr);*/
+			//model.show_arr(tmp_arr);
 			if(model.check_cell(cell_numb,tmp_arr) && model.check_edge(cell_numb, type,horizontal)){
 				var local_arr = [],
 					tmp_cell = cell_numb,
@@ -436,16 +471,17 @@ var model = {
 						local_arr[tmp_cell] = 2;
 					}
 				}
-				model.player_arr = local_arr.slice(0,100);
-				//model.show_arr(model.player_arr);
-				ship_obj = model.create_ship(type, horizontal, cell_numb);
-				//console.log(ship_obj);
-				model.pl_ships_arr.push(ship_obj);
-				//console.log(model.pl_ships_arr);
-
-				/*console.log("ship type:" + type +"");
-				console.log("horizontal:" + horizontal + "");
-				console.log(target);*/
+				if(player_arr){
+					model.player_arr = local_arr.slice(0,100);
+					ship_obj = model.create_ship(type, horizontal, cell_numb);
+					model.pl_ships_arr.push(ship_obj);
+				}else{
+					model.enemy_arr = local_arr.slice(0,100);
+					ship_obj = model.create_ship(type, horizontal, cell_numb);
+					model.en_ships_arr.push(ship_obj);
+				}
+				
+				
 				return true;
 
 			}else{
@@ -473,9 +509,6 @@ var model = {
 			j = 0;
 		for(var i = 3;i>=0;i--){
 			j = 0;
-			/*console.log("Type:"+i+"");
-			console.log("ships_hangar:"+ships_hangar[i]+"");
-			console.log("j:"+j+"");*/
 			while(j<ships_hangar[i]){
 				rand_horiz = Math.random() * (1 - 0) + 0;
 				if(rand_horiz > 0.5){
@@ -484,15 +517,15 @@ var model = {
 					rand_horiz = false;
 				}
 				rand_cell = Math.floor(Math.random() * (99 - 0 + 1) + 0);
-				if(model.ship_to_array(rand_cell,(i+1),rand_horiz,player_arr)){// Подаём всегда пустой массив!!!
+				if(model.ship_to_array(rand_cell,(i+1),rand_horiz,player_arr)){
 					j++;
 				}else{
 					continue;
 				}
 			}
+			ships_hangar[i] = 0;
 		}
-			//console.log(arr);
-		}
+	}
 		
 
 };
@@ -501,65 +534,93 @@ var model = {
 
 /*------------------- Start controller --------------------*/
 var controller = {
-	main_btn_clk: function(){
-		var butt = $(".game-button")[2],
-		status = model.game_status(butt);
-		if(status === "start-btn"){
-			view.show_field();
-		}else if(status === "end-btn"){
-			view.show_hangar();
+	clear_field: function(player_arr){
+		var clear_arr = [],
+			clear_obj_arr =[],
+			field_type = "",
+			last_ship = 0;
+		if(player_arr){
+			clear_arr = model.player_arr;
+			clear_obj_arr = model.pl_ships_arr;
+			field_type = "p";
+		}else{
+			clear_arr = model.enemy_arr;
+			clear_obj_arr = model.en_ships_arr;
+			field_type = "e";
 		}
-	},
-	clear_btn_clk: function(){
-		var last_ship = 0;
-		for(var i = 0;i<model.pl_ships_arr.length;i++){
-			for(var j = 0; j<model.pl_ships_arr[i].cells.length;j++){
-				model.setNavy(model.pl_ships_arr[i].cells[j],model.player_arr,model.pl_ships_arr[i].horiz,0,0);
-				//view.clear_cell("p",model.pl_ships_arr[i].cells[j]);
-				last_ship = model.pl_ships_arr[i].cells[j] + 1;
+		for(var i = 0;i<clear_obj_arr.length;i++){
+			for(var j = 0; j<clear_obj_arr[i].cells.length;j++){
+				model.setNavy(clear_obj_arr[i].cells[j],clear_arr,clear_obj_arr[i].horiz,0,0);
+				view.clear_cell(field_type,clear_obj_arr[i].cells[j]);
+				last_ship = clear_obj_arr[i].cells[j] + 1;
 			}
-			if(model.pl_ships_arr[i].horiz){
-				if((model.player_arr[last_ship] != 1) && ((last_ship) % 10 != 0)){
-					model.player_arr[last_ship] = 0;
+			if(player_arr){
+				view.change_pl_ships(1,clear_obj_arr[i].type);
+			}
+			if(clear_obj_arr[i].horiz){
+				if((clear_arr[last_ship] != 1) && ((last_ship) % 10 != 0)){
+					clear_arr[last_ship] = 0;
 				}
 			}else{
 				if(last_ship < 100){
-					model.player_arr[last_ship] = 0;
+					clear_arr[last_ship] = 0;
 				}
 			}
 		}
-		while(model.pl_ships_arr.length != 0){
-			model.pl_ships_arr.pop();
+		while(clear_obj_arr.length != 0){
+			clear_obj_arr.pop();
 		}
 		model.pl_ships_hangar = [4,3,2,1];
-		model.show_arr(model.player_arr);
-		//model.show_arr(model.player_arr);
-		//console.log(model.pl_ships_arr);
+		model.show_arr(clear_arr);
+	},
+	fill_field: function(player_field){
+		var obj_arr = [];
+		if(player_field){	
+			obj_arr = model.pl_ships_arr;
+		}else{
+			obj_arr = model.en_ships_arr;
+		}
+		for(var i = 0;i<obj_arr.length;i++){
+			view.change_pl_ships(-1,obj_arr[i].type);
+			if((obj_arr[i].type == 1 || obj_arr[i].type == 2)){
+				view.draw_navy(obj_arr[i].cells[0],obj_arr[i].type,obj_arr[i].horiz);
+			}
+			if((obj_arr[i].type == 3 || obj_arr[i].type == 4)){
+				view.draw_navy(obj_arr[i].cells[1],obj_arr[i].type,obj_arr[i].horiz);
+			}
+			if(obj_arr[i].type == 5){
+				view.draw_navy(obj_arr[i].cells[2],obj_arr[i].type,obj_arr[i].horiz);
+			}
+		}
+	},
+	main_btn_clk: function(){
+		var butt = $("#main-btn");
+		if(!model.game_started){
+			if(model.check_hungar(true)){
+				//console.log("hungar not empty");
+				view.show_mess("Not all ships placed");
+			}else{
+				view.show_field();
+				model.ships_random(false,model.en_ships_hangar);
+				model.show_arr(model.enemy_arr);
+				model.game_started = true;
+			}
+			
+		}else{
+			view.show_hangar();
+			model.game_started = false;
+		}
+	},
+	ok_btn_clk: function(){
+		view.hide_mess();
+	},
+	clear_btn_clk: function(){
+		controller.clear_field(true);
 	},
 	random_btn_clk: function(){
-		//console.log();
+		controller.clear_field(true);
 		model.ships_random(true,model.pl_ships_hangar);
-		//model.show_arr(model.player_arr);
-		//draw_navy: function(cell_numb,type,horizontal)
-		for(var i = 0;i<model.pl_ships_arr.length;i++){
-			if((model.pl_ships_arr[i].type == 1 || model.pl_ships_arr[i].type == 2)){
-				view.draw_navy(model.pl_ships_arr[i].cells[0],model.pl_ships_arr[i].type,model.pl_ships_arr[i].horiz);
-			}
-			if((model.pl_ships_arr[i].type == 3 || model.pl_ships_arr[i].type == 4)){
-				view.draw_navy(model.pl_ships_arr[i].cells[1],model.pl_ships_arr[i].type,model.pl_ships_arr[i].horiz);
-			}
-			if(model.pl_ships_arr[i].type == 5){
-				view.draw_navy(model.pl_ships_arr[i].cells[2],model.pl_ships_arr[i].type,model.pl_ships_arr[i].horiz);
-			}
-		}
-		model.show_arr(model.player_arr);
-		var c = 0;
-		for(var i = 0; i<100;i++){
-			if(model.player_arr[i] == 1){
-				c++;
-			}
-		}
-		console.log("ships" + c);
+		controller.fill_field(true);
 	},
 	grab_ship: function(e){
 		var navy_type = e.target.id[e.target.id.length-1];
@@ -595,44 +656,59 @@ var controller = {
 		}
 	},
 	set_ship: function(e){
-		if(model.dragObject.object != null && model.ship_grabbed){
-			model.setting_navy_type = model.dragObject.ship_type;
-			model.dragObject.object.detach();
-			model.dragObject.object = null;
-			model.ship_grabbed = false;
-			model.ship_placed = true;
-			//console.log("1");
-			$(document.elementFromPoint(e.pageX, e.pageY)).click();
-		}else if(model.dragObject.object != null && !model.ship_grabbed){
-			model.ship_grabbed = true;
-			//console.log("2");
-		}else if(model.ship_placed){
-			//console.log("3");
-			var reg = new RegExp("\\d{1,2}","i"),
+		if(!model.game_started){
+			if(model.dragObject.object != null && model.ship_grabbed){
+				model.setting_navy_type = model.dragObject.ship_type;
+				model.dragObject.object.detach();
+				model.dragObject.object = null;
+				model.ship_grabbed = false;
+				model.ship_placed = true;
+				$(document.elementFromPoint(e.pageX, e.pageY)).click();
+			}else if(model.dragObject.object != null && !model.ship_grabbed){
+				model.ship_grabbed = true;
+			}else if(model.ship_placed){
+				var reg = new RegExp("\\d{1,2}","i"),
 				cell_numb = "",
 				set_result = true,
 				table = $(e.target).closest("table");
-			if(table.length != 0){
-				set_result = model.ship_to_array(e.target,model.dragObject.ship_type,model.dragObject.horizontal,model.player_arr);
-				if(set_result){
-					cell_numb = reg.exec(e.target.id)[0];
-					view.draw_navy(cell_numb,model.dragObject.ship_type,model.dragObject.horizontal);	
-					model.ship_placed = false;
-					model.dragObject.horizontal = true;
+				if(table.length != 0){
+					set_result = model.ship_to_array(e.target,model.dragObject.ship_type,model.dragObject.horizontal,model.player_arr);
+					if(set_result){
+						cell_numb = reg.exec(e.target.id)[0];
+						view.draw_navy(cell_numb,model.dragObject.ship_type,model.dragObject.horizontal);	
+						model.ship_placed = false;
+						model.dragObject.horizontal = true;
+					}else{
+						model.dragObject.horizontal = true;
+						model.ship_placed = false;
+						model.change_hangar_ships(1,model.setting_navy_type);
+						view.change_pl_ships(1,model.setting_navy_type);
+					}
 				}else{
-					model.dragObject.horizontal = true;
-					model.ship_placed = false;
+					console.log("not in table");
 					model.change_hangar_ships(1,model.setting_navy_type);
 					view.change_pl_ships(1,model.setting_navy_type);
 				}
-			}else{
-				console.log("not in table");
-				model.change_hangar_ships(1,model.setting_navy_type);
-				view.change_pl_ships(1,model.setting_navy_type);
 			}
 		}
-		
-		
+	},
+	shot: function(e){
+		var target = e.target,
+			cell_numb = target.id.slice(1);
+		//console.log(cell_numb);
+		if(model.game_started){
+			if(model.player_shot && target.id[0] == "e"){
+				view.clear_cell("e",cell_numb);
+				if(model.check_shot(true,cell_numb)){
+					view.draw_shot("e",cell_numb,"enemey-ship");
+				}else{
+					view.draw_shot("e",cell_numb,"stone");
+				}
+			}else if(!model.player_shot && target.id[0] == "p"){
+				model.check_shot(false,cell_numb);
+			}
+
+		}
 	}
 };
 /*------------------- End controller --------------------*/
@@ -658,19 +734,21 @@ $(document).ready(function () {
 		},
 
 		event: function(){
-			var main_but = document.getElementById("start-btn"),
+			var main_but = document.getElementById("main-btn"),
 				clear_but = document.getElementById("clear-btn"),
-				rand_but = document.getElementById("random-btn");
+				rand_but = document.getElementById("random-btn"),
+				ok_but = document.getElementById("ok-btn");
+				pl_cell = document.getElementById("player-field");
 			main_but.onclick = controller.main_btn_clk;
 			clear_but.onclick = controller.clear_btn_clk;
 			rand_but.onclick = controller.random_btn_clk;
+			ok_but.onclick = controller.ok_btn_clk;
 			$("#ships-for-batle").on("click",".draggable",controller.grab_ship);
 			$("body").on("mousemove",controller.move_ship);
 			$("body").on("click",controller.set_ship);
-			$("#player-field").on("click",".batle-cell",controller.set_ship);
 			$("body").on("keyup",controller.rotate_ship);
-			//$("#ships-five").draggable();
-			//$('#ships-for-batle').on('mousedown', '.draggable', controller.drag_ship);
+			pl_cell.addEventListener("click",controller.set_ship);
+			$(".batle-cell").on("click", controller.shot);
 			
 
 			
